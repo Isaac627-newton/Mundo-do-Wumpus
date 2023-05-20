@@ -1,0 +1,54 @@
+import numpy as np
+import random
+
+size = 3 
+
+# criar matriz 3x3
+matrix = np.array([['Limpo', 'Limpo', 'Wumpus'],
+                   ['Poço', 'Poço', 'Ouro'],
+                   ['Agente', 'Limpo', 'Limpo']])
+
+# irá definir a posição de um futuro elemento constante
+const_row = 2  # linha 3
+const_col = 0  # coluna 1
+
+# uma lista com elementos que não são o agente será criada
+elementos = matrix[matrix != 'Agente']
+
+# Emaranha a lista
+random.shuffle(elementos)
+
+# Cambia os elementos na matriz pela lista emaranhada
+posicao = 0
+for i in range(matrix.shape[0]):
+    for j in range(matrix.shape[1]):
+        if matrix[i][j] != 'Agente':
+            matrix[i][j] = elementos[posicao]
+            posicao += 1
+
+def percepcoes(matrix, agent_pos):
+    percepcoes = ['Desconhecido'] * 4
+
+    # Afere elemento acima
+    if agent_pos[0] > 0:
+        percepcoes[0] = matrix[agent_pos[0]-1][agent_pos[1]]
+
+    # Afere elemento abaixo
+    if agent_pos[0] < matrix.shape[0]-1:
+        percepcoes[1] = matrix[agent_pos[0]+1][agent_pos[1]]
+
+    # Afere elemento à esquerda
+    if agent_pos[1] > 0:
+        percepcoes[2] = matrix[agent_pos[0]][agent_pos[1]-1]
+
+    # Afere elemento à direita
+    if agent_pos[1] < matrix.shape[1]-1:
+        percepcoes[3] = matrix[agent_pos[0]][agent_pos[1]+1]
+
+    return percepcoes
+
+print(matrix)
+
+print('\n')
+
+print(percepcoes(matrix, (size-1, 0)))
