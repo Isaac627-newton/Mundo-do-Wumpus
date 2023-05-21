@@ -18,11 +18,11 @@ Projeto voltado para obtenção de nota na disciplina de Inteligência Computaci
 
 # Etapa 01 (CONCLUÍDA) 
 
-- 3x3 Environment (Ambiente 3x3)
+3x3 Environment (Ambiente 3x3)
 
-Essa edição limitada contém uma matriz de tamanho 3x3, além de um monstro Wumpus em um determinado ponto do mapa e um Tesouro escondido.
+- Essa edição limitada contém uma matriz de tamanho 3x3, além de um monstro Wumpus em um determinado ponto do mapa e um Tesouro escondido.
 
-- Controlled Environment (Ambiente 3x3)
+Controlled Environment (Ambiente Controlado)
 
 - Nesta edição, vemos como ficaria o ambiente se a quantidade de Tesouros, Wumpus e Poços fossem definidos pelos usuários.
 
