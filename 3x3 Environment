@@ -5,7 +5,7 @@ size = 3
 
 # gerar matriz tamanho 3x3
 matrix = np.array([['Wumpus', 'Limpo', 'Limpo'],
-                   ['Ouro', 'Poço', 'Limpo'],
+                   ['Ouro', 'Limpo', 'Limpo'],
                    ['Agente', 'Limpo', 'Poço']])
 
 
