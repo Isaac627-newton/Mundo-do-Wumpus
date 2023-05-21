@@ -1,15 +1,16 @@
 import numpy as np
 import random
 
-size = 3 
+size = 4 
 
-# gerar matriz tamanho 3x3
-matrix = np.array([['Limpo', 'Limpo', 'Wumpus'],
-                   ['Poço', 'Poço', 'Ouro'],
-                   ['Agente', 'Limpo', 'Limpo']])
+# gerar matriz tamanho 4x4
+matrix = np.array([['Wumpus', 'Limpo', 'Limpo'],
+                   ['Ouro', 'Poço', 'Limpo'],
+                   ['Limpo','Poço','Limpo'],
+                   ['Agente', 'Limpo', 'Poço']])
 
 
-const_row = 2  # linha 3
+const_row = 2  # linha 4
 const_col = 0  # coluna 1
 
 
