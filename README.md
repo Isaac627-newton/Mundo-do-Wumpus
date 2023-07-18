@@ -27,7 +27,7 @@ Controlled Environment (Ambiente Controlado)
 - Nesta edição, vemos como ficaria o ambiente se a quantidade de Tesouros, Wumpus e Poços fossem definidos pelos usuários.
 
 
-# ETAPA 02 (CONCLUÍDA)
+# ETAPA 02 (INCOMPLETA)
 
 - O comportamento do agente é definido a partir de seu conjunto de regras.
 
