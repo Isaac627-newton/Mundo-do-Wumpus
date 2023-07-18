@@ -1,0 +1,166 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+typedef enum { VAZIO, POCO, WUMPUS, OURO } Tipo_Objeto;
+
+// Função para imprimir o ambiente com os objetos
+void Exibir_Ambiente(Tipo_Objeto **ambiente, int tamanho)
+{
+    for (int i = 0; i < tamanho; i++)
+    {
+        for (int j = 0; j < tamanho; j++)
+        {
+            switch (ambiente[i][j])
+            {
+                case VAZIO:
+                    printf(". ");
+                    break;
+                case POCO:
+                    printf("P ");
+                    break;
+                case WUMPUS:
+                    printf("W ");
+                    break;
+                case OURO:
+                    printf("O ");
+                    break;
+            }
+        }
+        printf("\n");
+    }
+}
+
+// Função para alocar a matriz de ambiente dinamicamente
+Tipo_Objeto **Criar_Ambiente(int tamanho)
+{
+    Tipo_Objeto **ambiente = (Tipo_Objeto **)malloc(tamanho * sizeof(Tipo_Objeto *));
+    if (ambiente == NULL)
+    {
+        printf("Erro ao alocar memória para o ambiente.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < tamanho; i++)
+    {
+        ambiente[i] = (Tipo_Objeto *)malloc(tamanho * sizeof(Tipo_Objeto));
+        if (ambiente[i] == NULL)
+        {
+            printf("Erro ao alocar memória para o ambiente.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    return ambiente;
+}
+
+// Função para liberar a memória alocada para a matriz de ambiente
+void Liberar_Memoria(Tipo_Objeto **ambiente, int tamanho)
+{
+    for (int i = 0; i < tamanho; i++)
+    {
+        free(ambiente[i]);
+    }
+    free(ambiente);
+}
+
+// Função para verificar se uma posição está dentro dos limites do ambiente
+int Posicao_Valida(int x, int tamanho)
+{
+    return (x >= 0 && x < tamanho);
+}
+
+// Função para posicionar os objetos no ambiente
+void Posicionar_objetos(Tipo_Objeto **ambiente, int tamanho, int num_poco, int num_wumpus, int num_ouro)
+{
+    // Verifica se a quantidade de objetos é válida
+    if (num_poco + num_wumpus + num_ouro >= tamanho * tamanho - 1)
+    {
+        printf("Quantidade de objetos inválida para o tamanho do ambiente.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Posiciona os poços aleatoriamente
+    for (int i = 0; i < num_poco; i++)
+    {
+        int linha, coluna;
+        do
+        {
+            linha = rand() % tamanho;
+            coluna = rand() % tamanho;
+        } while (ambiente[linha][coluna] != VAZIO || (linha == 0 && coluna == 0));
+        ambiente[linha][coluna] = POCO;
+    }
+
+    // Posiciona o Wumpus aleatoriamente
+    for (int i = 0; i < num_wumpus; i++)
+    {
+        int linha, coluna;
+        do
+        {
+            linha = rand() % tamanho;
+            coluna = rand() % tamanho;
+        } while (ambiente[linha][coluna] != VAZIO || (linha == 0 && coluna == 0));
+        ambiente[linha][coluna] = WUMPUS;
+    }
+
+    // Posiciona o ouro aleatoriamente
+    for (int i = 0; i < num_ouro; i++)
+    {
+        int linha, coluna;
+        do
+        {
+            linha = rand() % tamanho;
+            coluna = rand() % tamanho;
+        } while (ambiente[linha][coluna] != VAZIO || (linha == 0 && coluna == 0));
+        ambiente[linha][coluna] = OURO;
+    }
+}
+
+int main()
+{
+    srand(time(NULL)); // Inicializa a semente do gerador de números aleatórios
+
+    int n;
+    printf("Digite o tamanho do ambiente: ");
+    scanf("%d", &n);
+
+    if (n < 3)
+    {
+        printf("Tamanho inválido. O tamanho deve ser maior ou igual a 3.\n");
+        return 1;
+    }
+
+    Tipo_Objeto **ambiente = Criar_Ambiente(n); // Cria a matriz de ambiente com o tamanho especificado
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            ambiente[i][j] = VAZIO; // Inicializa o ambiente com casas vazias
+        }
+    }
+
+    int num_poco, num_wumpus, num_ouro;
+    printf("Digite a quantidade de poços: ");
+    scanf("%d", &num_poco);
+
+    printf("Digite a quantidade de Wumpus: ");
+    scanf("%d", &num_wumpus);
+
+    printf("Digite a quantidade de ouro: ");
+    scanf("%d", &num_ouro);
+
+    Posicionar_objetos(ambiente, n, num_poco, num_wumpus, num_ouro);
+
+    printf("\n");
+    printf("W - WUMPUS\n");
+    printf("O - OURO\n");
+    printf("P - POÇO\n");
+    printf("\n");
+    printf("Ambiente:\n");
+    Exibir_Ambiente(ambiente, n);
+
+    Liberar_Memoria(ambiente, n); // Libera a memória alocada para a matriz de ambiente
+
+    return 0;
+}
