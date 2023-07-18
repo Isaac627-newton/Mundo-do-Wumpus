@@ -6,7 +6,7 @@ Disciplina: Inteligência Computacional
 
 Professor: Otávio Noura Teixeira
 
-Alunos: Horácio Santos, Arthur de Wilkersan e Isaque Oliveira.
+Alunos: Horácio Santos e Isaque Oliveira.
 
 Tema: Mundo do Wumpus: uma ferramenta para o desenvolvimento de raciocínio lógico.
 
