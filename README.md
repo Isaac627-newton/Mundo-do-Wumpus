@@ -27,3 +27,10 @@ Controlled Environment (Ambiente Controlado)
 - Nesta edição, vemos como ficaria o ambiente se a quantidade de Tesouros, Wumpus e Poços fossem definidos pelos usuários.
 
 
+# ETAPA 02 (CONCLUÍDA)
+
+- O comportamento do agente é definido a partir de seu conjunto de regras.
+
+- O Agente é codificado e integrado ao Gerador Aleatório de Ambientes.
+
+- Múltiplas projeções do Agente.
