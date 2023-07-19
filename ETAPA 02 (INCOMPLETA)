@@ -1,0 +1,339 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+typedef enum { VAZIO, POCO, WUMPUS, OURO } Tipo_Objeto;
+
+void Exibir_Ambiente(Tipo_Objeto **ambiente, int tamanho) {
+    for (int i = 0; i < tamanho; i++)
+    {
+        for (int j = 0; j < tamanho; j++)
+        {
+            switch (ambiente[i][j])
+            {
+                case VAZIO:
+                    printf(". ");
+                    break;
+                case POCO:
+                    printf("P ");
+                    break;
+                case WUMPUS:
+                    printf("W ");
+                    break;
+                case OURO:
+                    printf("O ");
+                    break;
+            }
+        }
+        printf("\n");
+    }
+}
+
+Tipo_Objeto **Criar_Ambiente(int tamanho)
+{
+    Tipo_Objeto **ambiente = (Tipo_Objeto **)malloc(tamanho * sizeof(Tipo_Objeto *));
+    if (ambiente == NULL)
+    {
+        printf("Erro ao alocar memória para o ambiente.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < tamanho; i++)
+    {
+        ambiente[i] = (Tipo_Objeto *)malloc(tamanho * sizeof(Tipo_Objeto));
+        if (ambiente[i] == NULL)
+        {
+            printf("Erro ao alocar memória para o ambiente.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    return ambiente;
+}
+
+void Liberar_Memoria(Tipo_Objeto **ambiente, int tamanho)
+{
+    for (int i = 0; i < tamanho; i++)
+    {
+        free(ambiente[i]);
+    }
+    free(ambiente);
+}
+
+int Posicao_Valida(int x, int tamanho)
+{
+    return (x >= 0 && x < tamanho);
+}
+
+int objeto_valido(Tipo_Objeto **ambiente, int tamanho, int x, int y, Tipo_Objeto obj)
+{
+    return (x >= 0 && x < tamanho && y >= 0 && y < tamanho && ambiente[x][y] == obj);
+}
+
+int tem_ouro(Tipo_Objeto **ambiente, int linha, int coluna)
+{
+    return ambiente[linha][coluna] == OURO;
+}
+
+int na_saida(int linha, int coluna)
+{
+    return linha == 0 && coluna == 0;
+}
+
+int agente_esta_morto(Tipo_Objeto **ambiente, int linha, int coluna)
+{
+    return ambiente[linha][coluna] == POCO || ambiente[linha][coluna] == WUMPUS;
+}
+
+// Definir percepções
+typedef enum
+{
+    P, // Poço próximo
+    W, // Wumpus nas proximidades
+    G, // Ouro nas proximidades
+    B, // Brisa na célula atual
+    S, // Cheiro na cela atual
+    None // Nenhuma percepção relevante na célula atual
+}
+Percepcao;
+
+// Definir ações
+typedef enum
+{
+    M, // Move para uma célula adjacente
+    SHT, // Atire a flecha na direção atual
+    GLD, // Pegue o ouro da célula atual
+    CLM, // Sai da caverna
+    N // Nenhuma ação (usado apenas para inicializar as regras)
+}
+Acao;
+
+// Sistema baseado em regras (tabela de regras)
+Acao regras[6] = {M, SHT, GLD, M, M, M};
+
+// Função para escolher aleatoriamente uma ação com base nas regras
+Acao escolher_acao(Percepcao percepcao)
+{
+    int indice = percepcao;
+    return regras[indice];
+}
+
+void Posicionar_objetos(Tipo_Objeto **ambiente, int tamanho, int num_poco, int num_wumpus, int num_ouro)
+{
+    // Verifica se as quantidades do objeto são válidas
+    if (num_poco + num_wumpus + num_ouro >= tamanho * tamanho - 1)
+    {
+        printf("Quantidade de objetos inválida para o tamanho do ambiente.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    // Posiciona os poços aleatoriamente
+    for (int i = 0; i < num_poco; i++)
+    {
+        int linha, coluna;
+        do
+        {
+            linha = rand() % tamanho;
+            coluna = rand() % tamanho;
+        } while (ambiente[linha][coluna] != VAZIO || (linha == 0 && coluna == 0));
+        ambiente[linha][coluna] = POCO;
+    }
+
+    // Posiciona Wumpus aleatoriamente
+    for (int i = 0; i < num_wumpus; i++)
+    {
+        int linha, coluna;
+        do
+        {
+            linha = rand() % tamanho;
+            coluna = rand() % tamanho;
+        } while (ambiente[linha][coluna] != VAZIO || (linha == 0 && coluna == 0));
+        ambiente[linha][coluna] = WUMPUS;
+    }
+
+    // Posiciona o ouro aleatoriamente
+    for (int i = 0; i < num_ouro; i++)
+    {
+        int linha, coluna;
+        do
+        {
+            linha = rand() % tamanho;
+            coluna = rand() % tamanho;
+        } while (ambiente[linha][coluna] != VAZIO || (linha == 0 && coluna == 0));
+        ambiente[linha][coluna] = OURO;
+    }
+}
+
+int main()
+{
+    srand(time(NULL)); // Inicializa o gerador de números aleatórios
+    int n;
+    printf("Digite o tamanho do ambiente: ");
+    scanf("%d", &n);
+
+    if (n < 3)
+    {
+        printf("Tamanho inválido. O tamanho deve ser maior ou igual a 3.\n");
+        return 1;
+    }
+
+    Tipo_Objeto **ambiente = Criar_Ambiente(n); // Cria a matriz de ambiente com o tamanho especificado
+    for (int i = 0; i < n; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            ambiente[i][j] = VAZIO; // Inicializa o ambiente com células vazias
+        }
+    }
+
+    int num_poco, num_wumpus, num_ouro;
+    printf("Digite a quantidade de poços: ");
+    scanf("%d", &num_poco);
+
+    printf("Digite a quantidade de Wumpus: ");
+    scanf("%d", &num_wumpus);
+
+    printf("Digite a quantidade de ouro: ");
+    scanf("%d", &num_ouro);
+
+    Posicionar_objetos(ambiente, n, num_poco, num_wumpus, num_ouro);
+
+    printf("\n");
+    printf("W - WUMPUS\n");
+    printf("O - OURO\n");
+    printf("P - POÇO\n");
+    printf("\n");
+    printf("Ambiente:\n");
+    Exibir_Ambiente(ambiente, n);
+
+    // Comportamento do agente reativo
+    int linha_agente = 0; // Linha atual do agente
+    int coluna_agente = 0; // coluna atual do agente
+    int arrow = 1; // O número de setas disponíveis para o agente
+
+    while (1)
+    {
+        // Obtém as percepções da célula atual
+        Percepcao percepcao = None;
+        if (objeto_valido(ambiente, n, linha_agente, coluna_agente, POCO))
+        {
+            percepcao = P;
+        }
+        else
+        {
+            if (objeto_valido(ambiente, n, linha_agente, coluna_agente, WUMPUS))
+            {
+                percepcao = W;
+            }
+            else
+            {
+                if (objeto_valido(ambiente, n, linha_agente, coluna_agente, OURO))
+                {
+                    percepcao = G;
+                }
+                else
+                {
+                    // Verifica se há brisa e mau cheiro na célula atual
+                    if ((objeto_valido(ambiente, n, linha_agente - 1, coluna_agente, POCO) || objeto_valido(ambiente, n, linha_agente + 1, coluna_agente, POCO) || objeto_valido(ambiente, n, linha_agente, coluna_agente - 1, POCO) || objeto_valido(ambiente, n, linha_agente, coluna_agente + 1, POCO)))
+                    {
+                        percepcao = B;
+                    }
+                    if ((objeto_valido(ambiente, n, linha_agente - 1, coluna_agente, WUMPUS) || objeto_valido(ambiente, n, linha_agente + 1, coluna_agente, WUMPUS) || objeto_valido(ambiente, n, linha_agente, coluna_agente - 1, WUMPUS) || objeto_valido(ambiente, n, linha_agente, coluna_agente + 1, WUMPUS)))
+                    {
+                        percepcao = S;
+                    }
+                }
+            }
+        }
+
+        // Escolhe a ação com base nas percepções
+        Acao proxima_acao = escolher_acao(percepcao);
+
+        // Executa a ação escolhida
+        switch (proxima_acao)
+        {
+            int mover;
+            case M: // Move para uma célula adjacente (selecionada aleatoriamente)
+                do
+                {
+                    mover = rand() % 4;
+                }
+                while (mover == 0 && linha_agente == 0 && coluna_agente == 0);
+
+                switch (mover)
+                {
+                    case 0:
+                        if (Posicao_Valida(linha_agente - 1, n))
+                        linha_agente--;
+                        break;
+                    case 1:
+                        if (Posicao_Valida(linha_agente + 1, n))
+                            linha_agente++;
+                            break;
+                    case 2:
+                        if (Posicao_Valida(coluna_agente - 1, n))
+                        coluna_agente--;
+                        break;
+                    case 3:
+                        if (Posicao_Valida(coluna_agente + 1, n))
+                        coluna_agente++;
+                        break;
+                }
+            break;
+
+            case SHT:
+            // Atire a flecha na direção atual (se disponível)
+            if (arrow)
+            {
+                // Código necessário atirar a flecha
+
+                arrow = 0; // O agente usou sua única flecha
+            }
+            break;
+
+            case GLD:
+                // Pegue o ouro da célula atual
+                if (tem_ouro(ambiente, linha_agente, coluna_agente))
+                {
+                    printf("\nAgente pegou o ouro!\n");
+                    // Código nessesário para pegar o ouro.
+                }
+                break;
+           case CLM:
+            // Sai da caverna
+            if (na_saida(linha_agente, coluna_agente))
+            {
+                printf("\nAgente saiu da caverna!\n");
+                if (tem_ouro)
+                {
+                    printf("Agente tem o ouro! Missão completa.\n");
+                }
+                else
+                {
+                    printf("Agente não tem o ouro! Missão fracassada.\n");
+                }
+                Liberar_Memoria(ambiente, n);
+                return 0;
+            }
+            break;
+            case N:
+                // Código nessesário para nenhuma ação relevante a ser tomada
+                break;
+        }
+        // Verifica se o agente caiu em um buraco ou encontrou o Wumpus
+        if (agente_esta_morto(ambiente, linha_agente, coluna_agente))
+        {
+            printf("\nAgente está morto!\n");
+            // Código n essesário para lidar com a morte do agente)
+            Liberar_Memoria(ambiente, n);
+            return 1;
+        }
+        // Imprime a grade do ambiente atualizado após cada ação
+        printf("\nMovimento do agente:\n");
+        Exibir_Ambiente(ambiente, n);
+    }
+
+    Liberar_Memoria(ambiente, n); // Libera a memória alocada para a matriz de ambiente
+
+    return 0;
+}
